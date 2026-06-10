@@ -1,28 +1,15 @@
 import pytest
 from main import BooksCollector
 
-# класс TestBooksCollector объединяет набор тестов, которыми мы покрываем наше приложение BooksCollector
-# обязательно указывать префикс Test
 class TestBooksCollector:
 
-    # пример теста:
-    # обязательно указывать префикс test_
-    # дальше идет название метода, который тестируем add_new_book_
-    # затем, что тестируем add_two_books - добавление двух книг
     def test_add_new_book_add_two_books(self):
-        # создаем экземпляр (объект) класса BooksCollector
         collector = BooksCollector()
-
-        # добавляем две книги
         collector.add_new_book('Гордость и предубеждение и зомби')
         collector.add_new_book('Что делать, если ваш кот хочет вас убить')
-
-        # проверяем, что добавилось именно две
-        # словарь books_rating, который нам возвращает метод get_books_rating, имеет длину 2
         assert len(collector.get_books_genre()) == 2
 
     # напиши свои тесты ниже
-    # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
 
     # 1. Тест добавления книг с валидными названиями (длина от 1 до 40)
     @pytest.mark.parametrize("book_name", ["Обычная книга", "A" * 1, "B" * 40])
@@ -45,17 +32,19 @@ class TestBooksCollector:
         collector.set_book_genre("Книга", "Фантастика")
         assert collector.get_book_genre("Книга") == "Фантастика"
 
-    # 4. Тест, что жанр не устанавливается для несуществующей книги или недопустимого жанра
+    # 4. Тесты, что жанр не устанавливается для несуществующей книги или недопустимого жанра
     @pytest.mark.parametrize("book_name, genre", [("Несуществующая", "Фантастика"), ("Существующая", "Нежанр")])
-    def test_set_book_genre_invalid(self, book_name, genre):
+    def test_set_book_genre_nonexistent_book(self):
         collector = BooksCollector()
-        collector.add_new_book("Существующая")
-        collector.set_book_genre(book_name, genre)
+        collector.add_new_book("Существующая книга")
+        collector.set_book_genre("Несуществующая книга", "Фантастика")
+        assert collector.get_book_genre("Несуществующая книга") is None
 
-        if book_name == "Несуществующая":
-            assert collector.get_book_genre(book_name) is None
-        else:
-            assert collector.get_book_genre(book_name) == ""
+    def test_set_book_genre_invalid_genre(self):
+        collector = BooksCollector()
+        collector.add_new_book("Существующая книга")
+        collector.set_book_genre("Существующая книга", "Нежанр")
+        assert collector.get_book_genre("Существующая книга") == ""
 
     # 5. Тест получения списка книг по конкретному жанру
     def test_get_books_with_specific_genre(self):
